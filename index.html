@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>刻晴</title>
+    <style>
+      body {
+        background-color: black;
+      }
+
+      .container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        height: 240px;
+        width: 200px;
+        overflow: hidden;
+      }
+
+      .container-left {
+        transform: translate(-200%, -50%) scale(0.8);
+        display: none;
+      }
+
+      .container-right {
+        transform: translate(100%, -50%) scale(0.8);
+        display: none;
+      }
+
+      .container > div {
+        position: absolute;
+      }
+
+      .eye {
+        width: 26px;
+        height: 26px;
+        background-image: url(./assets/tool.png);
+        background-position: -748px -162px;
+      }
+
+      .eye1 {
+        left: 67px;
+        top: 112px;
+      }
+
+      .eye2 {
+        left: 98px;
+        top: 116px;
+      }
+
+      .body {
+        background-image: url(./assets/tool.png);
+        background-position: 0 -50px;
+        width: 200px;
+        height: 240px;
+        top: 0;
+        left: 0;
+      }
+
+      .hand-right {
+        width: 68px;
+        height: 124px;
+        background-image: url(./assets/tool.png);
+        background-position-y: -38px;
+        left: 129px;
+        top: 165px;
+        animation: rotate-ani 0.5s infinite linear;
+      }
+
+      .hand-left {
+        width: 64px;
+        height: 125px;
+        background-image: url(./assets/tool.png);
+        left: 24px;
+        top: 158px;
+        background-position-y: -188px;
+        animation: rotate-ani 0.5s infinite linear;
+        transition-property: none;
+      }
+
+      video {
+        display: none;
+      }
+
+      @keyframes rotate-ani {
+        0% {
+          transform: translate(-25px, 0px);
+        }
+        25% {
+          transform: translate(0, -25px);
+        }
+        50% {
+          transform: translate(25px, 0px);
+        }
+        75% {
+          transform: translate(0, 25px);
+        }
+        100% {
+          transform: translate(-25px, 0px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container main">
+      <div class="eye eye1"></div>
+      <div class="eye eye2"></div>
+      <div class="body" data-id="main"></div>
+      <div class="hand hand-left"></div>
+      <div class="hand hand-right"></div>
+    </div>
+    <div class="container container-left" id="containerLeft">
+      <div class="eye eye1"></div>
+      <div class="eye eye2"></div>
+      <div class="body"></div>
+      <div class="hand hand-left"></div>
+      <div class="hand hand-right"></div>
+    </div>
+    <div class="container container-right" id="containerRight">
+      <div class="eye eye1"></div>
+      <div class="eye eye2"></div>
+      <div class="body"></div>
+      <div class="hand hand-left"></div>
+      <div class="hand hand-right"></div>
+    </div>
+    <video autoplay loop name="media">
+      <source src="./assets/woheni.mp3" type="audio/mpeg" />
+    </video>
+    <script>
+      const handLefts = document.querySelectorAll(".hand-left");
+      const handRights = document.querySelectorAll(".hand-right");
+      const body = document.querySelectorAll(".body");
+      const main = Array.from(body).find((item) => item.dataset.id === "main");
+
+      const leftHandPositions = [-285, -395, -490, -612];
+      const rightHandPositions = [-285, -399, -504, -612];
+
+      let tempLeftHandPositions = [...leftHandPositions];
+      let tempRightHandPositions = [...rightHandPositions];
+
+      window.setInterval(() => {
+        if (!tempLeftHandPositions.length) {
+          tempLeftHandPositions = [...leftHandPositions];
+        }
+        const leftX = tempLeftHandPositions.shift() || 0;
+        handLefts.forEach((ele) => {
+          ele.style.backgroundPositionX = `${leftX}px`;
+        });
+
+        if (!tempRightHandPositions.length) {
+          tempRightHandPositions = [...rightHandPositions];
+        }
+        const rightX = tempRightHandPositions.shift() || 0;
+        handRights.forEach((ele) => {
+          ele.style.backgroundPositionX = `${rightX}px`;
+        });
+      }, 500 / 4);
+
+      let timer = window.setTimeout(() => {
+        body.forEach((ele) => {
+          if (ele.dataset.id === "main") {
+            ele.style.backgroundPositionY = "-350px";
+          } else {
+            ele.style.backgroundPositionY = "-625px";
+          }
+          timer = 0;
+        });
+      }, 10000);
+
+      let isLeft = true;
+      window.setInterval(() => {
+        body.forEach((ele) => {
+          if (timer) {
+            ele.style.backgroundPositionY = "-350px";
+          }
+          if (isLeft) {
+            ele.style.backgroundPositionX = "-200px";
+          } else {
+            ele.style.backgroundPositionX = "-500px";
+          }
+        });
+        isLeft = !isLeft;
+      }, 500 / 2);
+
+      window.setTimeout(() => {
+        const containerLeft = document.getElementById("containerLeft");
+        const containerRight = document.getElementById("containerRight");
+        containerLeft.style.display = "block";
+        containerRight.style.display = "block";
+      }, 6000);
+
+      function handleMouseMove(e) {
+        const { pageX, pageY } = e;
+        document.querySelectorAll(".main .eye").forEach((ele) => {
+          const bounds = main.getBoundingClientRect();
+          const { width, height, top, left } = bounds;
+          const center = { x: left + width / 2, y: top + height / 2 };
+          const offsetX = pageX - center.x;
+          const offsetY = pageY - center.y;
+          const scaleX = offsetX / window.innerWidth;
+          const scaleY = offsetY / window.innerHeight;
+          const number = 2;
+          const translateX = scaleX * number;
+          const translateY = scaleY * number;
+          ele.style.transform = `translate(${translateX}px, ${translateY}px)`;
+        });
+      }
+
+      document.addEventListener("mousemove", handleMouseMove);
+    </script>
+  </body>
+</html>

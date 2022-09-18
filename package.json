@@ -1,0 +1,105 @@
+{
+  "name": "keqingyao",
+  "productname": "梓酱摇",
+  "version": "1.0.0",
+  "description": "摇起来",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "win": "electron-builder --win -p always"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/classmateoula/keqingyao.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/classmateoula/keqingyao/issues"
+  },
+  "build": {
+    "files": [
+      "!**src/*",
+      "!**docs/*",
+      "!**/script/*",
+      "!**/*.md",
+      "!**/*.yml",
+      "!**/tsconfig.json",
+      "!**/.vscode/*"
+    ],
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "localhost:3821"
+      }
+    ],
+    "appId": "com.electron.keqingyao",
+    "buildDependenciesFromSource": true,
+    "generateUpdatesFilesForAllChannels": true,
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false
+    },
+    "win": {
+      "artifactName": "Mockplus_RP_Setup_v${version}.${ext}",
+      "icon": "build/win.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "verifyUpdateCodeSignature": false,
+      "signingHashAlgorithms": [
+        "sha256"
+      ],
+      "signDlls": true
+    },
+    "mac": {
+      "category": "public.app-category.graphics-design",
+      "icon": "build/mac.png",
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "identity": "Liu Song (7PZMT8T5KL)",
+      "hardenedRuntime": true,
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "dmg": {
+      "sign": false,
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    }
+  },
+  "homepage": "https://github.com/classmateoula/keqingyao#readme",
+  "devDependencies": {
+    "electron": "17.4.6",
+    "electron-builder": "23.0.3",
+    "typescript": "4.6.4"
+  },
+  "dependencies": {
+    "electron-log": "4.3.0",
+    "electron-store": "6.0.1"
+  }
+}

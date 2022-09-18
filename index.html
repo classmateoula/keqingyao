@@ -1,23 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+  <head itemprop="video" itemscope itemtype="http://schema.org/VideoObject">
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>刻晴</title>
     <style>
       body {
-        background-color: black;
+        background-color: transparent;
+        user-select: none;
+        overflow: hidden;
       }
 
       .container {
-        position: fixed;
+        position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         height: 240px;
         width: 200px;
         overflow: hidden;
+      }
+
+      .container.main,
+      .container-left,
+      .container-right {
+        z-index: 1;
+        -webkit-app-region: drag;
       }
 
       .container-left {
@@ -102,33 +111,146 @@
           transform: translate(-25px, 0px);
         }
       }
+
+      .carousel-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-150%, -50%);
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        transition: transform 4s;
+      }
+
+      @keyframes container-in {
+        from {
+          transform: translate(-10000px, -50%);
+        }
+        to {
+          transform: translate(-50%, -50%);
+        }
+      }
+
+      .carousel {
+        display: flex;
+        width: 200vw;
+        height: 100vh;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        animation: carousel 2s linear infinite;
+      }
+
+      @keyframes carousel {
+        0% {
+          transform: translateX(-50%);
+        }
+        100% {
+          transform: translate(0);
+        }
+      }
+
+      .carousel .container {
+        position: static;
+        margin: 0 50px;
+        transform: translate(0);
+      }
+
+      .switch-btn {
+        width: 30px;
+        height: 30px;
+        background-color: red;
+        position: fixed;
+        z-index: 1;
+        left: 50%;
+        top: 50%;
+        transform: translate(60px, -150px);
+        background: url(./assets/switch.png) no-repeat;
+        background-size: 100% 100%;
+      }
     </style>
   </head>
   <body>
-    <div class="container main">
+    <div class="container main" id="main">
       <div class="eye eye1"></div>
       <div class="eye eye2"></div>
       <div class="body" data-id="main"></div>
       <div class="hand hand-left"></div>
       <div class="hand hand-right"></div>
     </div>
-    <div class="container container-left" id="containerLeft">
+    <div class="switch-btn" id="switch"></div>
+    <div class="container container-left other" id="containerLeft">
       <div class="eye eye1"></div>
       <div class="eye eye2"></div>
       <div class="body"></div>
       <div class="hand hand-left"></div>
       <div class="hand hand-right"></div>
     </div>
-    <div class="container container-right" id="containerRight">
+    <div class="container container-right other" id="containerRight">
       <div class="eye eye1"></div>
       <div class="eye eye2"></div>
       <div class="body"></div>
       <div class="hand hand-left"></div>
       <div class="hand hand-right"></div>
     </div>
-    <video autoplay loop name="media">
-      <source src="./assets/woheni.mp3" type="audio/mpeg" />
-    </video>
+    <div class="carousel-container other" id="containerIn">
+      <div class="carousel" id="carouselId">
+        <div class="container">
+          <div class="eye eye1"></div>
+          <div class="eye eye2"></div>
+          <div class="body"></div>
+          <div class="hand hand-left"></div>
+          <div class="hand hand-right"></div>
+        </div>
+      </div>
+    </div>
+    <video src="./assets/woheni.mp3" loop autoplay></video>
+    <script>
+      const switchID = document.getElementById("switch");
+      switchID.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("jojo");
+        require("electron")
+          .ipcRenderer.invoke("setWindowSize")
+          .then((res) => {
+            const other = document.querySelectorAll(".other");
+            other.forEach((ele) => {
+              ele.style.opacity = res ? 1 : 0;
+            });
+          });
+      };
+    </script>
+    <script>
+      const containerWidth = window.innerWidth;
+      const containerHeight = window.innerHeight;
+      const htmlContent = `
+          <div class="eye eye1"></div>
+          <div class="eye eye2"></div>
+          <div class="body"></div>
+          <div class="hand hand-left"></div>
+          <div class="hand hand-right"></div>
+        `;
+      const itemWidth = 300;
+      const itemHeight = 260;
+      const colCount = (containerWidth / itemWidth) >> 0;
+      const rowCount = (containerHeight / itemHeight) >> 0;
+      const htmlCount = colCount * rowCount * 2;
+      const carouselId = document.getElementById("carouselId");
+      for (let i = 0; i < htmlCount; i++) {
+        const div = document.createElement("div");
+        div.className = "container";
+        div.innerHTML = htmlContent;
+        carouselId.appendChild(div);
+      }
+    </script>
+    <script>
+      const containerIn = document.getElementById("containerIn");
+      window.setTimeout(() => {
+        containerIn.style.transform = "translate(-50%, -50%)";
+      }, 29000);
+    </script>
     <script>
       const handLefts = document.querySelectorAll(".hand-left");
       const handRights = document.querySelectorAll(".hand-right");
@@ -210,6 +332,11 @@
       }
 
       document.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          window.close();
+        }
+      });
     </script>
   </body>
 </html>
